@@ -1,120 +1,148 @@
 import streamlit as st
-import json
 
 st.set_page_config(
     page_title="나만의 MBTI 단짝 포켓몬 찾기",
     page_icon="⚡",
     layout="centered",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="collapsed"
 )
 
-st.markdown("""
-    <style>
+CUSTOM_CSS = """
+<style>
     /* 전체 배경 및 기본 폰트 설정 (따뜻한 크림/노란색 톤) */
     .stApp {
         background-color: #FFFDF0;
-        font-family: 'Pretendard', 'Malgun Gothic', sans-serif;
+        font-family: 'Pretendard', 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
         color: #2D3748;
     }
     
     /* 헤더 스타일링 */
     .main-header {
         text-align: center;
-        padding: 2rem 1rem 1rem 1rem;
+        padding: 2.5rem 1.5rem;
         background: linear-gradient(135deg, #FFF3BF 0%, #FFE066 100%);
-        border-radius: 24px;
-        box-shadow: 0 8px 20px rgba(245, 159, 0, 0.15);
+        border-radius: 28px;
+        box-shadow: 0 10px 25px rgba(245, 159, 0, 0.15);
         margin-bottom: 2rem;
-        border: 2px solid #FFD43B;
+        border: 3px solid #FFD43B;
     }
     
     .main-title {
-        font-size: 2.3rem !important;
+        font-size: 2.4rem !important;
         font-weight: 800;
         color: #D9480F;
         margin-bottom: 0.5rem;
+        line-height: 1.2;
     }
     
     .sub-title {
-        font-size: 1.2rem !important;
-        color: #7950F2;
+        font-size: 1.25rem !important;
+        color: #5C4813;
         font-weight: 600;
+        margin-top: 0.5rem;
     }
     
     /* 포켓몬 카드 스타일 */
     .pokemon-card {
         background: #FFFFFF;
-        border-radius: 24px;
-        padding: 2rem;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        border-radius: 28px;
+        padding: 2.2rem;
+        box-shadow: 0 12px 35px rgba(0, 0, 0, 0.07);
         border: 3px solid #FFE066;
         text-align: center;
-        margin-top: 1.5rem;
-        transition: all 0.3s ease;
+        margin-top: 1rem;
     }
     
-    /* 큰 글씨 레이블 */
+    /* MBTI 뱃지 */
     .badge-mbti {
         display: inline-block;
         background-color: #FF6B6B;
-        color: white;
-        font-size: 1.3rem;
-        font-weight: bold;
-        padding: 6px 18px;
+        color: #FFFFFF;
+        font-size: 1.35rem;
+        font-weight: 800;
+        padding: 8px 22px;
         border-radius: 30px;
-        margin-bottom: 12px;
+        margin-bottom: 14px;
+        letter-spacing: 0.5px;
     }
     
     .pokemon-title {
-        font-size: 2.2rem;
+        font-size: 2.3rem;
         font-weight: 800;
         color: #2B8A3E;
-        margin-bottom: 0.5rem;
+        margin-bottom: 0.8rem;
+    }
+
+    .pokemon-subname {
+        font-size: 1.3rem;
+        color: #868E96;
+        font-weight: 600;
     }
     
     .type-badge {
         display: inline-block;
-        background-color: #E9ECEF;
-        color: #495057;
-        font-size: 1.1rem;
-        font-weight: bold;
-        padding: 6px 16px;
+        background-color: #FFF9DB;
+        color: #D9480F;
+        font-size: 1.15rem;
+        font-weight: 700;
+        padding: 6px 18px;
         border-radius: 20px;
         margin: 4px;
-        border: 1px solid #CED4DA;
+        border: 2px solid #FFE066;
     }
     
     .section-box {
         background-color: #FFF9DB;
-        border-radius: 16px;
-        padding: 1.2rem;
-        margin-top: 1rem;
+        border-radius: 18px;
+        padding: 1.3rem;
+        margin-top: 1.2rem;
         text-align: left;
         font-size: 1.15rem;
         line-height: 1.7;
         color: #343A40;
-        border-left: 5px solid #FCC419;
+        border-left: 6px solid #FCC419;
     }
-    
-    /* 선택 상자 및 버튼 스타일링 조정 */
-    .stSelectbox label {
-        font-size: 1.3rem !important;
-        font-weight: bold !important;
-        color: #D9480F !important;
+
+    .reason-box {
+        background-color: #FFF3BF;
+        border-radius: 18px;
+        padding: 1.3rem;
+        margin-top: 1.2rem;
+        text-align: left;
+        font-size: 1.15rem;
+        line-height: 1.7;
+        color: #343A40;
+        border-left: 6px solid #FF922B;
     }
     
     /* 이미지 스타일 */
+    .pokemon-img-container {
+        margin: 1.5rem 0;
+    }
+
     .pokemon-img-container img {
         max-width: 280px;
-        filter: drop-shadow(0px 8px 12px rgba(0,0,0,0.15));
-        transition: transform 0.3s ease;
+        width: 100%;
+        height: auto;
+        filter: drop-shadow(0px 10px 15px rgba(0,0,0,0.12));
     }
-    
-    .pokemon-img-container img:hover {
-        transform: scale(1.05);
+
+    /* 축하 메시지 */
+    .congratulation-msg {
+        text-align: center;
+        margin-top: 1.8rem;
+        font-size: 1.3rem;
+        font-weight: 800;
+        color: #D9480F;
+        padding: 1rem;
+        background-color: #FFF3BF;
+        border-radius: 20px;
+        border: 2px dashed #FFD43B;
     }
-    </style>
-""", unsafe_allowed_html=True)
+</style>
+"""
+
+st.markdown(CUSTOM_CSS, unsafe_allowed_html=True)
 
 MBTI_POKEMON_DB = {
     "ISTJ": {
@@ -158,7 +186,7 @@ MBTI_POKEMON_DB = {
         "name_ko": "루카리오",
         "name_en": "Lucario",
         "id": 448,
-        "type": ["루카리오", "강철"],
+        "type": ["격투", "강철"],
         "traits": "상황 판단이 빠르고 파동을 감지하여 효율적이고 완벽하게 임무를 수행함.",
         "reason": "냉철한 상황 판단력과 뛰어난 도구/기술 활용 능력을 가진 ISTP와 잘 맞습니다. 과묵하지만 실전에서 놀라운 합을 보여주는 단짝입니다."
     },
@@ -263,7 +291,6 @@ MBTI_POKEMON_DB = {
     }
 }
 
-# Header Section
 st.markdown("""
     <div class="main-header">
         <div class="main-title">⚡ MBTI 단짝 포켓몬 찾기 ⚡</div>
@@ -271,36 +298,36 @@ st.markdown("""
     </div>
 """, unsafe_allowed_html=True)
 
-# Selectbox Container
 st.markdown("### 🔍 당신의 MBTI 성격 유형을 선택해주세요")
 
-# Grid or Single Selectbox
 selected_mbti = st.selectbox(
-    "MBTI 목록",
+    "MBTI 선택하기",
     options=list(MBTI_POKEMON_DB.keys()),
     index=0,
-    help="16가지 MBTI 유형 중 당신의 유형을 고르세요!"
+    help="16가지 MBTI 유형 중 당신의 유형을 선택하세요!"
 )
 
 if selected_mbti:
     pokemon_data = MBTI_POKEMON_DB[selected_mbti]
     
-    # Trigger celebratory balloons/effects on recommendation!
+    # Celebration balloons effect
     st.balloons()
     
-    # Official PokeAPI high-resolution image URL
+    # PokeAPI official high-res artwork URL
     img_url = f"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/{pokemon_data['id']}.png"
     
-    # Layout using Streamlit columns for side-by-side or stacked view
-    st.markdown("---")
+    # Build type badges HTML
+    types_html = "".join([f'<span class="type-badge">🏷️ {t}</span>' for t in pokemon_data['type']])
     
-    # Render main card container
-    st.markdown(f"""
+    # Card Container Render
+    card_html = f"""
         <div class="pokemon-card">
             <div class="badge-mbti">✨ {selected_mbti} : {pokemon_data['mbti_title']} ✨</div>
-            <div class="pokemon-title">{pokemon_data['name_ko']} <span style="font-size: 1.3rem; color: #868E96;">({pokemon_data['name_en']})</span></div>
+            <div class="pokemon-title">
+                {pokemon_data['name_ko']} <span class="pokemon-subname">({pokemon_data['name_en']})</span>
+            </div>
             <div style="margin-bottom: 1rem;">
-                {' '.join([f'<span class="type-badge">🏷️ {t}</span>' for t in pokemon_data['type']])}
+                {types_html}
             </div>
             <div class="pokemon-img-container">
                 <img src="{img_url}" alt="{pokemon_data['name_ko']}" />
@@ -309,28 +336,27 @@ if selected_mbti:
                 <strong>📌 포켓몬 특징</strong><br>
                 {pokemon_data['traits']}
             </div>
-            <div class="section-box" style="background-color: #FFF3BF; border-left-color: #FF922B;">
+            <div class="reason-box">
                 <strong>💖 어울리는 이유</strong><br>
                 {pokemon_data['reason']}
             </div>
         </div>
-    """, unsafe_allowed_html=True)
-    
-    # Celebration Message below
-    st.markdown("""
-        <div style="text-align: center; margin-top: 1.5rem; font-size: 1.2rem; font-weight: bold; color: #E8590C;">
-            🎉 축하합니다! 완벽한 단짝 포켓몬을 찾았습니다! 🎉
+        <div class="congratulation-msg">
+            🎉 축하합니다! {selected_mbti} 유형에 완벽하게 어울리는 단짝 포켓몬을 찾았습니다! 🎉
         </div>
-    """, unsafe_allowed_html=True)
+    """
+    
+    st.markdown(card_html, unsafe_allowed_html=True)
 
-st.markdown("<br><br>", unsafe_allowed_html=True)
-with st.expander("ℹ️ 스트림릿 클라우드(Streamlit Cloud) 배포 가이드"):
+st.markdown("<br>", unsafe_allowed_html=True)
+with st.expander("ℹ️ 스트림릿 클라우드(Streamlit Cloud) 무료 배포 안내"):
     st.write("""
-    1. 이 코드파일을 **`main.py`** 이름으로 저장합니다.
-    2. 깃허브(GitHub) 저장소를 새로 만들고 `main.py`와 아래 내용의 `requirements.txt`를 추가하세요:
-       ```
-       streamlit
-       ```
-    3. [Streamlit Community Cloud](https://share.streamlit.io/)에 접속하여 깃허브 계정으로 로그인합니다.
-    4. **'New app'** 버튼을 누른 후, 저장소와 `main.py` 경로를 지정하면 인터넷에 무료로 앱이 배포됩니다!
+    1. 이 파일의 이름을 **`main.py`**로 저장합니다.
+    2. GitHub 저장소(Repository)를 만든 후 `main.py`와 `requirements.txt`를 올려주세요.
+       - `requirements.txt` 내용:
+         ```
+         streamlit
+         ```
+    3. [Streamlit Community Cloud](https://share.streamlit.io/)에 접속하여 로그인합니다.
+    4. **'New app'** 버튼을 누른 후 GitHub 저장소와 `main.py`를 지정하면 완료됩니다!
     """)
